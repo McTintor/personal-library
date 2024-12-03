@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %> | Personal Library</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <header>
+        <ul>
+            <li><a href="/" class="<%= path === '/' ? 'active' : '' %>">Home</a></li>
+            <li><a href="/new" class="<%= path === '/new' ? 'active' : '' %>">Add New Book</a></li>
+        </ul>
+    </header>
+    <div class="container">
