@@ -1,3 +1,10 @@
 <%- include('includes/navigation.ejs') %>
     
+    <% for (let book of books) { %>
+        <div class="book">
+            <h2><%= book.title %></h2>
+            <h2><%= book.author %></h2>
+        </div>
+    <% } %>
+
 <%- include('includes/footer.ejs') %>

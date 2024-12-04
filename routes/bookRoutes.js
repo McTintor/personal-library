@@ -5,6 +5,7 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 
 // Books routes
 router.get('/mainpage', ensureAuthenticated, bookController.getBooks);
-router.post('/add-book', ensureAuthenticated, bookController.addBook);
+router.get('/new', bookController.getAddForm);
+router.post('/new', ensureAuthenticated, bookController.addBook);
 
 module.exports = router;

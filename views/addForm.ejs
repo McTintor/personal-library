@@ -1,0 +1,23 @@
+<%- include('includes/navigation.ejs') %>
+    
+    <form action="/new" method="POST">
+        <input type="text" required name="title" placeholder="title">
+        <input type="text" required name="author" placeholder="author">
+        <input type="text" required name="genre" placeholder="genre">
+        <input type="number" required name="pages" placeholder="pages">
+        <input type="number" required name="price" placeholder="price">
+        <input type="text" required name="store" placeholder="store">
+        <input type="datetime-local" required name="purchase_date" placeholder="purchase date">
+        
+        <label for="containsTitle">Contains Title</label>
+        <input type="text" name="contains[title]" placeholder="containsTitle">
+        <label for="containsAuthor">Contains Author</label>
+        <input type="text" name="contains[author]" placeholder="containsAuthor">
+        
+        <input type="url" required name="picture_url" placeholder="picture_url">
+        <input type="text" required name="description" placeholder="description">
+
+        <button type="submit">Add Book</button>
+    </form>
+
+<%- include('includes/footer.ejs') %>

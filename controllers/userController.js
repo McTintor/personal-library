@@ -1,6 +1,7 @@
 const pool = require('../db/pool');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
+const User = require('../models/User');
 
 exports.getRegister = (req, res) => {
   res.render('index', { errorMessage: null }); // Render registration form
@@ -29,10 +30,13 @@ exports.postRegister = async (req, res) => {
       // Step 3: If no existing user, hash the password and create a new user
       const hashedPassword = await bcrypt.hash(password, 10);
   
-      await pool.query(
-        'INSERT INTO users (username, firstname, lastname, password, email) VALUES ($1, $2, $3, $4, $5)',
-        [username, firstname, lastname, hashedPassword, email]
-      );
+      await User.create({
+        username,
+        firstname,
+        lastname,
+        password: hashedPassword,
+        email
+      })
   
       // Step 4: Redirect to login page after successful registration
       res.redirect('/login');
