@@ -1,43 +1,76 @@
-const pool = require('../db/pool');
-const { getAllBooksByUserId } = require('../db/queries');
-const { create } = require('../models/Book');
+const { create, getAllBooksForUser, searchBookByQuery, getAllBookGenres } = require('../models/Book');
 
 
 exports.getBooks = async (req, res) => {
   try {
-    const books = await getAllBooksByUserId(req.user.id);
+    const targetSearchQueryText = req.query.search;
+    let books;
+    if (targetSearchQueryText) {
+      books = await searchBookByQuery(req.user.id, targetSearchQueryText);  
+    } else {
+      books = await getAllBooksForUser(req.user.id);
+    }
     res.render('mainpage', { 
-        books: books,
-        pageTitle: "Home",
-        path: "/"
-    });
-    console.log(books);
-    console.log(req.user.username)
+      books: books,
+      pageTitle: "Home",
+      path: "/mainpage",
+      queryText: targetSearchQueryText
+  });
+    console.log(books, '-------------------------------------------------');
   } catch (err) {
     console.error(err);
-    res.render('mainpage', { books: [] });
+    res.render('mainpage', { 
+      books: [],
+      pageTitle: "Home",
+      path: "/mainpage"
+  });
   }
 };
 
 exports.getAddForm = async (req, res, next) => {
-  res.render('addForm', {
-    pageTitle: 'Add New Book',
-    path: '/new'
-  })
-}
+  try {
+    const genres = await getAllBookGenres();
+    res.render('addForm', {
+      genres: genres, 
+      pageTitle: 'Add New Book',
+      path: '/new'
+    });
+  } catch (error) {
+    console.error('Error fetching genres:', error);
+    res.redirect('/mainpage');
+  }
+};
 
 exports.addBook = async (req, res) => {
-  const { title, author, genre, pages, price, store, purchase_date, picture_url, description } = req.body;
-  const contains = {
-    title: req.body['contains[title]'],
-    author: req.body['contains[author]']
-  };
-  console.log('console log of req.body from addBook : ' , req.body);
+  const { title, author, pages, price, store, purchase_date, picture_url, description, genre } = req.body;
+
+  console.log('raw req.body ', req.body);
+  // Retrieve contains data (if any)
+  const containsTitles = req.body.contains.title || [];
+  const containsAuthors = req.body.contains.author || [];
+
+  // Log each array individually for debugging
+  console.log('Contains Titles: ', containsTitles);
+  console.log('Contains Authors: ', containsAuthors);
+
+  // Pairing titles and authors
+  const contains = containsTitles.map((title, index) => {
+    const author = containsAuthors[index];
+    if (!title || !author) {
+      throw new Error(`Both title and author must be provided for each book pair!`);
+    }
+    return { title, author };
+  });
+
+  console.log('Parsed contains data: ', contains);  // Log the final parsed contains data
+
   try {
-    await create(req.user.id, title, author, genre, pages, price, store, purchase_date, contains, picture_url, description);
-    res.redirect('/mainpage');;
+    // Pass the parsed data to your database insertion function
+    await create(req.user.id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains);
+    res.redirect('/mainpage');
   } catch (err) {
     console.error(err);
     res.redirect('/mainpage');
   }
 };
+

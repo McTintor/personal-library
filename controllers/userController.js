@@ -59,7 +59,7 @@ exports.postLogin = (req, res, next) => {
         return next(err);
       }
       if (!user) {
-        req.flash('error', 'Invalid email or password');
+        req.flash('error', 'Invalid username or password');
         return res.redirect('/login');
       }
       req.logIn(user, (err) => {

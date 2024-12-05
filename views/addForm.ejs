@@ -1,23 +1,119 @@
 <%- include('includes/navigation.ejs') %>
-    
-    <form action="/new" method="POST">
-        <input type="text" required name="title" placeholder="title">
-        <input type="text" required name="author" placeholder="author">
-        <input type="text" required name="genre" placeholder="genre">
-        <input type="number" required name="pages" placeholder="pages">
-        <input type="number" required name="price" placeholder="price">
-        <input type="text" required name="store" placeholder="store">
-        <input type="datetime-local" required name="purchase_date" placeholder="purchase date">
-        
-        <label for="containsTitle">Contains Title</label>
-        <input type="text" name="contains[title]" placeholder="containsTitle">
-        <label for="containsAuthor">Contains Author</label>
-        <input type="text" name="contains[author]" placeholder="containsAuthor">
-        
-        <input type="url" required name="picture_url" placeholder="picture_url">
-        <input type="text" required name="description" placeholder="description">
 
-        <button type="submit">Add Book</button>
+<div class="add-container">
+    <form class="add-form" action="/new" method="POST" id="bookForm">
+        
+        <div>
+            <label for="genre">Genre</label>
+            <select id="genre" name="genre" required>
+                <option value="" disabled selected>Select Genre</option>
+                <% genres.forEach(genre => { %>
+                    <option value="<%= genre %>"><%= genre %></option>
+                <% }) %>
+            </select>
+        </div>
+        
+        <div>
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required placeholder="full title">
+        </div>
+
+        <div>
+            <label for="author">Author</label>
+            <input type="text" id="author" name="author" required placeholder="author full name">
+        </div>
+
+        <div>
+            <label for="pages">Pages</label>
+            <input type="number" id="pages" name="pages" required placeholder="number of pages">
+        </div>
+
+        <div>
+            <label for="price">Price</label>
+            <input type="number" id="price" name="price" required placeholder="bought for">
+        </div>
+
+        <div>
+            <label for="store">Store</label>
+            <input type="text" id="store" name="store" required placeholder="location of purchase">
+        </div>
+
+        <div>
+            <label for="picture_url">Picture URL</label>
+            <input type="url" id="picture_url" name="picture_url" required placeholder="enter valid URL">
+        </div>
+        
+        <div>
+            <label for="purchase_date">Purchase Date</label>
+            <input type="datetime-local" id="purchase_date" name="purchase_date" required placeholder="Purchase Date">
+        </div>
+
+        <div class="contains-container">
+            <h4>Add Book(s) contained in this book</h4>
+            <div class="contains-pair">
+                <label>Title</label>
+                <input type="text" name="contains[title][]" placeholder="optional">
+
+                <label>Author</label>
+                <input type="text" name="contains[author][]" placeholder="optional">
+            </div>
+        </div>
+        
+        <button class="another-one" type="button" id="addContainsPair">➕ Add Another Book</button>
+
+        <div class="description">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" required placeholder="Enter the book's description here."></textarea>
+        </div>
+
+        <button class="add-book-btn" type="submit">Add Book</button>
     </form>
+</div>
 
 <%- include('includes/footer.ejs') %>
+
+<script>
+    // JavaScript to add new "contains" pairs
+    const addContainsPairButton = document.getElementById('addContainsPair');
+    const containsContainer = document.querySelector('.contains-container');
+
+    addContainsPairButton.addEventListener('click', function() {
+        // Create a new div to hold the new set of inputs
+        const newContainsPair = document.createElement('div');
+        newContainsPair.classList.add('contains-pair');
+        
+        // Create the input fields for the new pair
+        newContainsPair.innerHTML = `
+            <label>Title</label>
+            <input type="text" name="contains[title][]" placeholder="optional">
+            
+            <label>Author</label>
+            <input type="text" name="contains[author][]" placeholder="optional">
+        `;
+        
+        // Append the new contains pair to the container
+        containsContainer.appendChild(newContainsPair);
+    });
+
+    // Custom validation for Title/Author pair
+    const form = document.getElementById('bookForm');
+    form.addEventListener('submit', function(event) {
+        const containsPairs = document.querySelectorAll('.contains-pair');
+        let isValid = true;
+
+        containsPairs.forEach(pair => {
+            const title = pair.querySelector('input[name^="contains[title]"]');
+            const author = pair.querySelector('input[name^="contains[author]"]');
+
+            // Check if one is filled but the other is not
+            if ((title.value && !author.value) || (!title.value && author.value)) {
+                alert('Both title and author must be provided for each contained book!');
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+</script>

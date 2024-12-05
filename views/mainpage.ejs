@@ -1,10 +1,37 @@
 <%- include('includes/navigation.ejs') %>
-    
-    <% for (let book of books) { %>
-        <div class="book">
-            <h2><%= book.title %></h2>
-            <h2><%= book.author %></h2>
+
+    <div class="mainpage-container">
+
+        <div class="filters">
+            <div class="genres">
+                
+            </div>
         </div>
-    <% } %>
+    
+    
+    
+        <div class="books-container">
+
+    <form action="/mainpage" method="GET">
+        <input type="text" placeholder="Search" name="search">
+        <button type="submit">🔍</button>
+    </form>
+    
+        <% if (queryText) { %>
+            <h2>Search results for '<%=queryText%>'</h2>
+        <% } else { %>
+            <h2>Your Books</h2>
+        <% } %>
+        
+        <% for (let book of books) { %>
+            <div class="book">
+                <h2><%= book.title %></h2>
+                <h2><%= book.author %></h2>
+            </div>
+        <% } %>
+
+    </div>
+    
+    </div>
 
 <%- include('includes/footer.ejs') %>
