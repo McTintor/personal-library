@@ -1,37 +1,134 @@
 <%- include('includes/navigation.ejs') %>
 
-    <div class="mainpage-container">
-
-        <div class="filters">
-            <div class="genres">
-                
-            </div>
-        </div>
-    
-    
-    
-        <div class="books-container">
-
-    <form action="/mainpage" method="GET">
-        <input type="text" placeholder="Search" name="search">
+<div class="mainpage-container">
+    <!-- Search Bar -->
+    <form class="mainpage-form" action="/mainpage" method="GET">
+        <input type="text" placeholder="Search books by title or author.." name="search">
         <button type="submit">🔍</button>
     </form>
+
     
-        <% if (queryText) { %>
-            <h2>Search results for '<%=queryText%>'</h2>
+    <div class="books-wrapper">
+
+        <ul class="filters">
+            <h2>Genres</h2>
+            <% genres.forEach(Genre => { %>
+                <li><a class="<%= Genre === genre ? 'active' : '' %>" href="/mainpage/<%=Genre%>"><%= Genre %></a></li>
+            <% }) %>
+        </ul>
+
+        <div class="books-content">
+
+            <!-- Search Results Heading -->
+        <% if (queryText && books.length !== 0) { %>
+            <h1>Search results for '<%= queryText %>'</h1>
+        <% } else if (queryText && books.length === 0) { %>
+            <h1>No matches for search '<%= queryText %>'</h1>
+        <% } else if (!queryText && books.length !== 0) { %>
+            <h1>Your <%=genre%> Books</h1>
         <% } else { %>
-            <h2>Your Books</h2>
+            <h1>Bookshelf is empty..</h1>
         <% } %>
-        
-        <% for (let book of books) { %>
-            <div class="book">
-                <h2><%= book.title %></h2>
-                <h2><%= book.author %></h2>
+    
+            <!-- Books Container -->
+            <div class="books-container">
+                <% for (let book of books) { %>
+                    <div class="book">
+                        <img src="<%= book.picture_url %>" alt="Book Cover">
+                        <h3 class="book-title"><%= book.title %></h3>
+                        <p class="book-author"><%= book.author %></p>
+                    </div>
+                <% } %>
             </div>
+        </div>
+    </div>
+    
+    
+
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <% 
+            let selectedGenre = ''; 
+            let searchQuery = '';
+        %>
+    
+        <% if (genre !== '') { %>
+            <% selectedGenre = `/${genre}`; %>
         <% } %>
 
+        <% if (queryText && queryText!== '') { %>
+            <% searchQuery = `&search=${queryText}`; %>
+        <% } %>
+    
+        <% if (totalPages === 1) { %>
+            <!-- Only one page -->
+            <button style="display: none;">Page 1</button>
+        <% } else if (totalPages <= 5) { %>
+            <!-- Render all pages if totalPages <= 5 -->
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <button onclick="window.location.href='/mainpage<%= selectedGenre %>?page=<%= i %><%=searchQuery%>'" 
+                        class="<%= parseInt(currentPage) === i ? 'active' : '' %>">
+                    Page <%= i %>
+                </button>
+            <% } %>
+        <% } else { %>
+            <!-- Handle cases with 6 or more pages -->
+            <button onclick="window.location.href='/mainpage<%= selectedGenre %>?page=1<%=searchQuery%>'"
+                <% if (parseInt(currentPage) === 1) { %> disabled <% } %>>
+                Page 1
+            </button>
+    
+            <!-- Previous button -->
+            <button id="left-button" onclick="window.location.href='/mainpage<%= selectedGenre %>?page=<%= Math.max(1, parseInt(currentPage) - 1) %><%=searchQuery%>'" 
+                    <% if (parseInt(currentPage) === 1) { %> disabled <% } %>>
+                &lt;
+            </button>
+    
+            <!-- Middle 5-page window -->
+            <% const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4)); %>
+            <% const endPage = Math.min(totalPages, startPage + 4); %>
+            <% for (let i = startPage; i <= endPage; i++) { %>
+                <button onclick="window.location.href='/mainpage<%= selectedGenre %>?page=<%= i %><%=searchQuery%>'" 
+                        class="<%= parseInt(currentPage) === i ? 'active' : '' %>">
+                    Page <%= i %>
+                </button>
+            <% } %>
+    
+            <!-- Next button -->
+            <button id="right-button" onclick="window.location.href='/mainpage<%= selectedGenre %>?page=<%= Math.min(totalPages, parseInt(currentPage) + 1) %><%=searchQuery%>'" 
+                    <% if (parseInt(currentPage) === totalPages) { %> disabled <% } %>>
+                &gt;
+            </button>
+    
+            <!-- Last page -->
+            <button onclick="window.location.href='/mainpage<%= selectedGenre %>?page=<%= totalPages %><%=searchQuery%>'"
+                <% if (parseInt(currentPage) === totalPages) { %> disabled <% } %>>
+                Page <%= totalPages %>
+            </button>
+        <% } %>
     </div>
     
-    </div>
+    
+    
+</div>
 
 <%- include('includes/footer.ejs') %>
+
+<script>
+    function updateButtonText() {
+        const buttonLeft = document.getElementById('left-button');
+        const buttonRight = document.getElementById('right-button');
+
+        if (window.innerWidth <= 480) {
+            buttonLeft.innerText = '⬅️';  
+            buttonRight.innerText = '➡️';
+        } else {
+            buttonLeft.innerText = '<';
+            buttonRight.innerText = '>';
+        }
+    }
+
+    window.addEventListener('load', updateButtonText);
+    window.addEventListener('resize', updateButtonText);
+</script>

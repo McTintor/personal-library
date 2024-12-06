@@ -48,10 +48,16 @@ async function getAllGenres() {
   return rows.map(row => row.genre); // Map the result to get only the genre names
 }
 
+async function getAllBooksOfGenre(userId, genre) {
+  const { rows } = await pool.query('SELECT * FROM books WHERE user_id = $1 AND genre = $2', [userId, `${genre}`]);
+  return rows;
+}
+
 module.exports = {
   insertUser,
   getAllBooksByUserId,
   insertBook,
   searchBook,
-  getAllGenres
+  getAllGenres,
+  getAllBooksOfGenre
 };

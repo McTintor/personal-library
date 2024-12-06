@@ -1,8 +1,9 @@
-const { create, getAllBooksForUser, searchBookByQuery, getAllBookGenres } = require('../models/Book');
+const { create, getAllBooksForUser, searchBookByQuery, getAllBookGenres, getAllBooksByGenre } = require('../models/Book');
 
 
 exports.getBooks = async (req, res) => {
   try {
+    const genres = await getAllBookGenres();
     const targetSearchQueryText = req.query.search;
     let books;
     if (targetSearchQueryText) {
@@ -10,22 +11,57 @@ exports.getBooks = async (req, res) => {
     } else {
       books = await getAllBooksForUser(req.user.id);
     }
+
+    const booksPerPage = 15;
+    const page = req.query.page || 1;
+    const totalPages = Math.ceil(books.length / booksPerPage);
+    books = books.slice((page - 1) * booksPerPage, page * booksPerPage);
+
     res.render('mainpage', { 
       books: books,
       pageTitle: "Home",
       path: "/mainpage",
-      queryText: targetSearchQueryText
+      queryText: targetSearchQueryText,
+      totalPages: totalPages,
+      currentPage: page,
+      genres,
+      genre: ''
   });
     console.log(books, '-------------------------------------------------');
   } catch (err) {
     console.error(err);
-    res.render('mainpage', { 
-      books: [],
-      pageTitle: "Home",
-      path: "/mainpage"
-  });
+    res.redirect('/mainpage');
   }
 };
+
+exports.getBooksByGenre = async (req, res) => {
+  try {
+    const genres = await getAllBookGenres();
+
+    const genre = req.params.genre;
+    let books = await getAllBooksByGenre(req.user.id, genre);
+
+    const booksPerPage = 15;
+    const page = req.query.page || 1;
+    const totalPages = Math.ceil(books.length / booksPerPage);
+    books = books.slice((page - 1) * booksPerPage, page * booksPerPage);
+
+    res.render('mainpage', {
+      books,
+      pageTitle: 'Home',
+      path: "/mainpage",
+      queryText: '',
+      totalPages,
+      currentPage: page,
+      genres,
+      genre
+    })
+  }
+  catch (err) {
+    console.error(err);
+    res.redirect('/mainpage');
+  }
+}
 
 exports.getAddForm = async (req, res, next) => {
   try {

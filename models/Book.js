@@ -1,11 +1,19 @@
-const { getAllBooksByUserId, insertBook, searchBook, getAllGenres } = require('../db/queries');
+const { getAllBooksByUserId, insertBook, searchBook, getAllGenres, getAllBooksOfGenre } = require('../db/queries');
 
 class Book {
-  constructor({ id, title, author, user_id }) {
+  constructor({ id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains }) {
     this.id = id;
+    this.userId = user_id;
     this.title = title;
     this.author = author;
-    this.userId = user_id;
+    this.pages = pages;
+    this.price = price;
+    this.store = store;
+    this.purchase_date = purchase_date;
+    this.picture_url = picture_url;
+    this.description = description;
+    this.genre = genre;
+    this.contains = contains;
   }
 
   static async getAllBooksForUser(userId) {
@@ -27,6 +35,11 @@ class Book {
 
   static async getAllBookGenres() {
     return await getAllGenres();
+  }
+
+  static async getAllBooksByGenre(user_id, genre) {
+    const booksData = await getAllBooksOfGenre(user_id, genre);
+    return booksData.map((bookData) => new Book(bookData));
   }
 }
 
