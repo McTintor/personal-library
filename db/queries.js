@@ -53,11 +53,17 @@ async function getAllBooksOfGenre(userId, genre) {
   return rows;
 }
 
+async function getBookById(book_id) {
+  const { rows } = await pool.query(`SELECT * FROM books WHERE id = $1`, [book_id]);
+  return rows[0];
+}
+
 module.exports = {
   insertUser,
   getAllBooksByUserId,
   insertBook,
   searchBook,
   getAllGenres,
-  getAllBooksOfGenre
+  getAllBooksOfGenre,
+  getBookById
 };

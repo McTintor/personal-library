@@ -1,4 +1,4 @@
-const { create, getAllBooksForUser, searchBookByQuery, getAllBookGenres, getAllBooksByGenre } = require('../models/Book');
+const { getBookById, create, getAllBooksForUser, searchBookByQuery, getAllBookGenres, getAllBooksByGenre } = require('../models/Book');
 
 
 exports.getBooks = async (req, res) => {
@@ -12,7 +12,7 @@ exports.getBooks = async (req, res) => {
       books = await getAllBooksForUser(req.user.id);
     }
 
-    const booksPerPage = 15;
+    const booksPerPage = 20;
     const page = req.query.page || 1;
     const totalPages = Math.ceil(books.length / booksPerPage);
     books = books.slice((page - 1) * booksPerPage, page * booksPerPage);
@@ -41,7 +41,7 @@ exports.getBooksByGenre = async (req, res) => {
     const genre = req.params.genre;
     let books = await getAllBooksByGenre(req.user.id, genre);
 
-    const booksPerPage = 15;
+    const booksPerPage = 20;
     const page = req.query.page || 1;
     const totalPages = Math.ceil(books.length / booksPerPage);
     books = books.slice((page - 1) * booksPerPage, page * booksPerPage);
@@ -89,14 +89,28 @@ exports.addBook = async (req, res) => {
   console.log('Contains Titles: ', containsTitles);
   console.log('Contains Authors: ', containsAuthors);
 
-  // Pairing titles and authors
-  const contains = containsTitles.map((title, index) => {
-    const author = containsAuthors[index];
-    if (!title || !author) {
-      throw new Error(`Both title and author must be provided for each book pair!`);
+  if (containsTitles.length === 0 && containsAuthors.length === 0) {
+    try {
+      await create(req.user.id, title, author, pages, price, store, purchase_date, picture_url, description, genre, []);
+      res.redirect('/mainpage');
+    } catch (err) {
+      console.error(err);
+      res.redirect('/mainpage');
     }
-    return { title, author };
-  });
+  } else if (((containsTitles.length === 0 && containsAuthors.length === 0) || (containsTitles.length === 1 && containsAuthors.length === 1)) && (containsTitles[0] === '' && containsAuthors[0] === '')) {
+    try {
+      await create(req.user.id, title, author, pages, price, store, purchase_date, picture_url, description, genre, []);
+      res.redirect('/mainpage');
+    } catch (err) {
+      console.error(err);
+      res.redirect('/mainpage');
+    }
+  } else {
+        // Pairing titles and authors
+    const contains = containsTitles.map((title, index) => {
+      const author = containsAuthors[index];
+      return { title, author };
+    });
 
   console.log('Parsed contains data: ', contains);  // Log the final parsed contains data
 
@@ -108,5 +122,22 @@ exports.addBook = async (req, res) => {
     console.error(err);
     res.redirect('/mainpage');
   }
+}
+
 };
 
+exports.getBookById = async (req, res) => {
+  try {
+    const book_id = req.params.id;
+    const book = await getBookById(book_id);
+
+    res.render('details', {
+      book,
+      pageTitle: `${book.title}`,
+      path: '/details'
+    })
+  } catch (err) {
+    console.error(err);
+    res.redirect('/mainpage');
+  }
+}

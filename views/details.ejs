@@ -1,0 +1,48 @@
+<%- include('includes/navigation.ejs') %>
+
+<div class="details-container">
+
+    <div class="detail-book">
+
+        <img src="<%=book.picture_url%>" alt="Book Cover">
+
+        <div class="details-fields">
+
+            <h1><%=book.title%></h1>
+            <h2><%=book.author%></h2>
+            <h3>Genre: <%=book.genre%></h3>
+            <p><%=book.pages%> pages</p>
+            <h3>Purchased for: <%= book.price %> RSD</h3>
+            <h3>Purchased at: <%= book.store %></h3>
+            <h4>Purchase date: <%= new Date(book.purchase_date).toDateString() %></h4>
+
+            <div class="contained-books">
+                <% if (book.contains && book.contains.length > 0) { %><h3 class="contains-h3">Titles contained in this book :</h3>
+                    <% for (let containedBook of book.contains) { %>
+                        <div class="containedBook">
+                            <h4 class="containedBook-title">Title: <%= containedBook.title %></h3>
+                            <p class="containedBook-author">Author: <%= containedBook.author %></p>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
+
+            <p class="detail-description"><%=book.description%></p>
+        </div>
+
+    </div>
+
+    <div class="detail-buttons">
+        <form action="/edit/<%=book.id%>" method="GET">
+            <button class="edit-button" type="submit">Edit</button>
+        </form>
+        <form action="/delete/<%=book.id%>" method="POST">
+            <button class="delete-button" type="submit">Delete</button>
+        </form>
+    </div>
+
+    <button onclick="window.history.back()" class="back-button">Go Back</button>
+
+</div>
+
+<%- include('includes/footer.ejs') %>

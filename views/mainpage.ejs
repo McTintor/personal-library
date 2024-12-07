@@ -34,9 +34,11 @@
             <div class="books-container">
                 <% for (let book of books) { %>
                     <div class="book">
-                        <img src="<%= book.picture_url %>" alt="Book Cover">
-                        <h3 class="book-title"><%= book.title %></h3>
-                        <p class="book-author"><%= book.author %></p>
+                        <a class="book-a" href="/details/<%=book.id%>">
+                            <img src="<%= book.picture_url %>" alt="Book Cover">
+                            <h3 class="book-title"><%= book.title %></h3>
+                            <p class="book-author"><%= book.author %></p>
+                        </a>
                     </div>
                 <% } %>
             </div>
@@ -114,21 +116,3 @@
 </div>
 
 <%- include('includes/footer.ejs') %>
-
-<script>
-    function updateButtonText() {
-        const buttonLeft = document.getElementById('left-button');
-        const buttonRight = document.getElementById('right-button');
-
-        if (window.innerWidth <= 480) {
-            buttonLeft.innerText = '⬅️';  
-            buttonRight.innerText = '➡️';
-        } else {
-            buttonLeft.innerText = '<';
-            buttonRight.innerText = '>';
-        }
-    }
-
-    window.addEventListener('load', updateButtonText);
-    window.addEventListener('resize', updateButtonText);
-</script>
