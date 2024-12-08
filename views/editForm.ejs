@@ -1,12 +1,12 @@
 <%- include('includes/navigation.ejs') %>
 
 <div class="add-container">
-    <form class="add-form" action="/new" method="POST" id="bookForm">
+    <form class="add-form" action="/edit/<%=book.id%>" method="POST">
         
         <div class="input-field">
             <label for="genre">Genre</label>
             <select id="genre" name="genre" required>
-                <option value="" disabled selected>Select Genre</option>
+                <option value="<%=book.genre%>" selected><%=book.genre%></option>
                 <% genres.forEach(genre => { %>
                     <option value="<%= genre %>"><%= genre %></option>
                 <% }) %>
@@ -45,74 +45,136 @@
         
         <div class="input-field">
             <label for="purchase_date">Purchase Date</label>
-            <input type="datetime-local" id="purchase_date" name="purchase_date" required value="<%=book.purchase_date%>">
+            <input 
+                type="date" 
+                id="purchase_date" 
+                name="purchase_date" 
+                required 
+                value="<%= book.purchase_date ? (() => {
+                    const date = new Date(book.purchase_date);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                })() : '' %>">
         </div>
+        
+        
 
         <div class="contains-container">
             <h4>Add Book(s) contained in this book (optional)</h4>
-            <div class="contains-pair">
-                <input type="text" name="contains[title][]" placeholder="Title">
-                <input type="text" name="contains[author][]" placeholder="Author">
-            </div>
+            <% 
+                const validContainedBooks = (book.contains && Array.isArray(book.contains))
+                    ? book.contains.filter(cb => cb.title?.trim() !== '')
+                    : [];
+            %>
+            <% if (validContainedBooks.length > 0) { %>
+                <% validContainedBooks.forEach((containedBook, index) => { %>
+                    <div class="contains-pair" data-index="<%= index %>">
+                        <input 
+                            type="text" 
+                            name="contains[title][]" 
+                            value="<%= containedBook.title %>">
+                        <input 
+                            type="text" 
+                            name="contains[author][]" 
+                            value="<%= containedBook.author %>">
+                            <button type="button" class="delete-pair-button">❌</button>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="contains-pair">
+                    <input type="text" name="contains[title][]" placeholder="Title">
+                    <input type="text" name="contains[author][]" placeholder="Author">
+                </div>
+            <% } %>
         </div>
+           
         
         <button class="another-one" type="button" id="addContainsPair">➕ Add Contained Book</button>
 
         <div class="description">
             <label for="description">Description</label>
-            <textarea id="description" name="description" required value="<%=book.description%>"></textarea>
+            <textarea id="description" name="description" ><%=book.description%></textarea>
         </div>
 
         <button class="add-book-btn" type="submit">Save</button>
+        <button onclick="window.history.back()" class="back-button">Go Back</button>
     </form>
 </div>
 
 <%- include('includes/footer.ejs') %>
 
 <script>
-    // JavaScript to add new "contains" pairs
+    // JavaScript to dynamically add new "contains" pairs
     const addContainsPairButton = document.getElementById('addContainsPair');
     const containsContainer = document.querySelector('.contains-container');
 
+    // Handle dynamically adding new pairs
     addContainsPairButton.addEventListener('click', function() {
-        // Create a new div to hold the new set of inputs
         const newContainsPair = document.createElement('div');
         newContainsPair.classList.add('contains-pair');
-        
-        // Create the input fields for the new pair
+
         newContainsPair.innerHTML = `
             <input type="text" name="contains[title][]" placeholder="Title">
             <input type="text" name="contains[author][]" placeholder="Author">
+            <button type="button" class="delete-pair-button">❌</button>
         `;
-        
-        // Append the new contains pair to the container
+
         containsContainer.appendChild(newContainsPair);
     });
 
-    // Custom validation for Title/Author pair
-    const form = document.getElementById('bookForm');
-    form.addEventListener('submit', function(event) {
-        const containsPairs = document.querySelectorAll('.contains-pair');
-        let isValid = true;
-
-        containsPairs.forEach(pair => {
-            const title = pair.querySelector('input[name^="contains[title]"]');
-            const author = pair.querySelector('input[name^="contains[author]"]');
-
-            // Skip completely empty pairs
-            if (!title.value && !author.value) {
-                return; // Don't validate this pair
-            }
-            
-            // Check if one is filled but the other is not
-            if ((title.value && !author.value) || (!title.value && author.value)) {
-                alert('Both title and author must be provided for each contained book!');
-                isValid = false;
-            }
-        });
-
-        if (!isValid) {
-            event.preventDefault(); // Prevent form submission
+    // Handle deleting dynamically created pairs
+    containsContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('delete-pair-button')) {
+            const pairToRemove = event.target.closest('.contains-pair');
+            pairToRemove.remove();
         }
     });
+
+    // Custom validation logic for Title/Author pairs on form submission
+    const form = document.getElementById('bookForm');
+    document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('.add-form');
+
+  form.addEventListener('submit', function(event) {
+    const containsPairs = document.querySelectorAll('.contains-container .contains-pair');
+    let isValid = true;
+
+    containsPairs.forEach(pair => {
+      const titleInput = pair.querySelector('input[name^="contains[title]"]');
+      const authorInput = pair.querySelector('input[name^="contains[author]"]');
+
+      // If both are empty, skip
+      if (!titleInput.value && !authorInput.value) return;
+
+      // If only one of the two is filled, prevent submission
+      if ((titleInput.value && !authorInput.value) || (!titleInput.value && authorInput.value)) {
+        alert('Both Title and Author must be entered together or left empty');
+        isValid = false;
+      }
+    });
+
+    if (!isValid) {
+      event.preventDefault(); // Prevent form submission
+    }
+  });
+});
+
+
+    // Prepopulate existing contains pairs if they exist in the database
+    const prepopulatePairs = () => {
+        const initialPairs = document.querySelectorAll('.contains-container .contains-pair');
+        initialPairs.forEach(pair => {
+            const titleInput = pair.querySelector('input[name^="contains[title]"]');
+            const authorInput = pair.querySelector('input[name^="contains[author]"]');
+
+            if (!titleInput.value && !authorInput.value) {
+                pair.querySelector('.delete-pair-button')?.remove(); // Remove unnecessary delete button if empty
+            }
+        });
+    };
+
+    // Call prepopulation on page load
+    document.addEventListener('DOMContentLoaded', prepopulatePairs);
 </script>

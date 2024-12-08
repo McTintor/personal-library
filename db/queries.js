@@ -28,7 +28,31 @@ async function insertBook(user_id, title, author, pages, price, store, purchase_
       );
     } catch (error) {
       console.error('Error inserting book:', error);
-      throw error; // Rethrow the error for the controller to handle
+      throw error;
+    }
+  }
+
+  async function editBook(book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains) {
+    try {
+      await pool.query(`UPDATE books
+        SET 
+            title = $3,
+            author = $4,
+            pages = $5,
+            price = $6,
+            store = $7,
+            purchase_date = $8,
+            picture_url = $9,
+            description = $10,
+            genre = $11,
+            contains = $12
+        WHERE 
+            id = $1 AND
+            user_id = $2 
+            `,
+         [book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains]);
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -58,6 +82,10 @@ async function getBookById(book_id) {
   return rows[0];
 }
 
+async function deleteBookById(book_id) {
+  await pool.query(`DELETE FROM books WHERE id = $1`, [book_id]);
+}
+
 module.exports = {
   insertUser,
   getAllBooksByUserId,
@@ -65,5 +93,7 @@ module.exports = {
   searchBook,
   getAllGenres,
   getAllBooksOfGenre,
-  getBookById
+  getBookById,
+  deleteBookById,
+  editBook
 };

@@ -1,4 +1,4 @@
-const { getBookById, create, getAllBooksForUser, searchBookByQuery, getAllBookGenres, getAllBooksByGenre } = require('../models/Book');
+const { editBook, deleteBookById, getBookById, create, getAllBooksForUser, searchBookByQuery, getAllBookGenres, getAllBooksByGenre } = require('../models/Book');
 
 
 exports.getBooks = async (req, res) => {
@@ -72,10 +72,28 @@ exports.getAddForm = async (req, res, next) => {
       path: '/new'
     });
   } catch (error) {
-    console.error('Error fetching genres:', error);
+    console.error(error);
     res.redirect('/mainpage');
   }
 };
+
+exports.getEditForm = async (req, res) => {
+  try {
+    const genres = await getAllBookGenres();
+    
+    const book_id = req.params.id;
+    const book = await getBookById(book_id);
+
+    res.render('editForm', {
+      book,
+      genres: genres,
+      pageTitle: 'Edit Book',
+      path: '/edit'
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 exports.addBook = async (req, res) => {
   const { title, author, pages, price, store, purchase_date, picture_url, description, genre } = req.body;
@@ -126,6 +144,50 @@ exports.addBook = async (req, res) => {
 
 };
 
+exports.editBook = async (req, res) => {
+  const { title, author, pages, price, store, purchase_date, picture_url, description, genre, contains } = req.body;
+  
+  const containsTitles = req.body.contains?.title || [];
+  const containsAuthors = req.body.contains?.author || [];
+  
+  if (containsTitles.length === 0 && containsAuthors.length === 0) {
+    try {
+      const user_id = req.user.id;
+      const book_id = req.params.id;
+      await editBook( book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, []);
+      res.redirect(`/details/${book_id}`);
+    } catch (err) {
+      console.error(err);
+      res.redirect(`/details/${book_id}`);
+    }
+  } else if (((containsTitles.length === 0 && containsAuthors.length === 0) || (containsTitles.length === 1 && containsAuthors.length === 1)) && (containsTitles[0] === '' && containsAuthors[0] === '')) {
+    try {
+      const user_id = req.user.id;
+      const book_id = req.params.id;
+      await editBook( book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, []);
+      res.redirect(`/details/${book_id}`);
+    } catch (err) {
+      console.error(err);
+      res.redirect(`/details/${book_id}`);
+    }
+  } else {
+        // Pairing titles and authors
+      const contains = containsTitles.map((title, index) => {
+      const author = containsAuthors[index];
+      return { title, author };
+      });
+      try {
+        const user_id = req.user.id;
+        const book_id = req.params.id;
+        await editBook( book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains);
+        res.redirect(`/details/${book_id}`);
+      } catch (err) {
+        console.error(err);
+        res.redirect(`/details/${book_id}`);
+      }
+  }
+}
+
 exports.getBookById = async (req, res) => {
   try {
     const book_id = req.params.id;
@@ -136,6 +198,16 @@ exports.getBookById = async (req, res) => {
       pageTitle: `${book.title}`,
       path: '/details'
     })
+  } catch (err) {
+    console.error(err);
+    res.redirect('/mainpage');
+  }
+}
+
+exports.deleteBook = async (req, res) => {
+  try {
+    await deleteBookById(req.params.id);
+    res.redirect('/mainpage');
   } catch (err) {
     console.error(err);
     res.redirect('/mainpage');

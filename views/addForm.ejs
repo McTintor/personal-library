@@ -45,14 +45,14 @@
         
         <div class="input-field">
             <label for="purchase_date">Purchase Date</label>
-            <input type="datetime-local" id="purchase_date" name="purchase_date" required placeholder="Purchase Date">
+            <input type="date" id="purchase_date" name="purchase_date" required placeholder="Purchase Date">
         </div>
 
         <div class="contains-container">
             <h4>Add Book(s) contained in this book (optional)</h4>
             <div class="contains-pair">
-                <input type="text" name="contains[title][]" placeholder="Title">
-                <input type="text" name="contains[author][]" placeholder="Author">
+                <input class="first-contains-title" type="text" name="contains[title][]" placeholder="Title">
+                <input class="first-contains-author" type="text" name="contains[author][]" placeholder="Author">
             </div>
         </div>
         
@@ -64,7 +64,9 @@
         </div>
 
         <button class="add-book-btn" type="submit">Add Book</button>
+        <button onclick="window.history.back()" class="back-button" type="button">Go Back</button>
     </form>
+
 </div>
 
 <%- include('includes/footer.ejs') %>
@@ -73,8 +75,12 @@
     // JavaScript to add new "contains" pairs
     const addContainsPairButton = document.getElementById('addContainsPair');
     const containsContainer = document.querySelector('.contains-container');
+    const firstContainsTitle = document.querySelector('.first-contains-title');
+    const firstContainsAuthor = document.querySelector('.first-contains-author');
 
     addContainsPairButton.addEventListener('click', function() {
+        
+        if (firstContainsTitle.value !== '' && firstContainsAuthor.value !== '') {
         // Create a new div to hold the new set of inputs
         const newContainsPair = document.createElement('div');
         newContainsPair.classList.add('contains-pair');
@@ -87,7 +93,8 @@
         
         // Append the new contains pair to the container
         containsContainer.appendChild(newContainsPair);
-    });
+    }
+});
 
     // Custom validation for Title/Author pair
     const form = document.getElementById('bookForm');

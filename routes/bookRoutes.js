@@ -9,5 +9,8 @@ router.get('/mainpage/:genre', ensureAuthenticated, bookController.getBooksByGen
 router.get('/new', bookController.getAddForm);
 router.post('/new', ensureAuthenticated, bookController.addBook);
 router.get('/details/:id', bookController.getBookById);
+router.post('/delete/:id', bookController.deleteBook);
+router.get('/edit/:id', bookController.getEditForm);
+router.post('/edit/:id', bookController.editBook);
 
 module.exports = router;

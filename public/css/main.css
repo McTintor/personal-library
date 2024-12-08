@@ -58,7 +58,7 @@ header, footer {
 .h1-welcome {
     text-align: center;
     font-size: 2rem;
-    margin: 10% 0 16% 0;
+    margin: 1% 0 5% 0;
     padding: 4rem 0 0 0;
 }
 
@@ -129,6 +129,11 @@ header, footer {
     justify-content: space-between;
 }
 
+.delete-pair-button {
+    all: unset;
+    cursor: pointer;
+}
+
 .login-register-btn, .add-book-btn {
     background-color: #EDF4F2;
     border: 1px solid #31473A;
@@ -170,6 +175,25 @@ header, footer {
 }
 
 .contains-pair:hover {
+    background-color: #EDF4F2;
+}
+
+.contains-pair-first {
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.contains-pair-first > input {
+    max-width: 90%;
+}
+
+.contains-pair-first:hover {
     background-color: #EDF4F2;
 }
 
@@ -399,6 +423,8 @@ svg {
 textarea {
     width: 90%;
     min-height: 200px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .another-one {
@@ -425,7 +451,7 @@ li > a:hover, li > a.active {
 
 .details-container {
     max-width: 90%;
-    width: 1200px;
+    width: 1600px;
     min-height: 600px;
     margin: auto;
     margin-top: 11rem;
@@ -442,10 +468,23 @@ li > a:hover, li > a.active {
     background-color: white;
 }
 
+.unset {
+    all: unset;
+}
+
 .detail-book {
     width: 90%;
     display: flex;
     justify-content: space-evenly;
+    align-items: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    flex-wrap: wrap;
+}
+
+.detail-book >img {
+    width: auto;
+    max-width: 80%;
 }
 
 .details-fields {
@@ -453,6 +492,15 @@ li > a:hover, li > a.active {
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 60%;
+}
+
+.detail-description {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
 }
 
 .detail-buttons {

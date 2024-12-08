@@ -19,10 +19,12 @@
             <div class="contained-books">
                 <% if (book.contains && book.contains.length > 0) { %><h3 class="contains-h3">Titles contained in this book :</h3>
                     <% for (let containedBook of book.contains) { %>
+                        <% if (containedBook.title !== '') { %>
                         <div class="containedBook">
                             <h4 class="containedBook-title">Title: <%= containedBook.title %></h3>
                             <p class="containedBook-author">Author: <%= containedBook.author %></p>
                         </div>
+                        <% } %>
                     <% } %>
                 <% } %>
             </div>
@@ -33,9 +35,7 @@
     </div>
 
     <div class="detail-buttons">
-        <form action="/edit/<%=book.id%>" method="GET">
-            <button class="edit-button" type="submit">Edit</button>
-        </form>
+            <button class="edit-button" type="submit"><a class="unset" href="/edit/<%=book.id%>">Edit</a></button>
         <form action="/delete/<%=book.id%>" method="POST">
             <button class="delete-button" type="submit">Delete</button>
         </form>

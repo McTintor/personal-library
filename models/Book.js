@@ -1,4 +1,4 @@
-const { getBookById, getAllBooksByUserId, insertBook, searchBook, getAllGenres, getAllBooksOfGenre } = require('../db/queries');
+const { editBook, deleteBookById, getBookById, getAllBooksByUserId, insertBook, searchBook, getAllGenres, getAllBooksOfGenre } = require('../db/queries');
 
 class Book {
   constructor({ id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains }) {
@@ -45,6 +45,14 @@ class Book {
   static async getBookById(book_id) {
     const bookData = await getBookById(book_id);
     return new Book(bookData);
+  }
+
+  static async deleteBookById(book_id) {
+    return await deleteBookById(book_id);
+  }
+
+  static async editBook(book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains) {
+    return await editBook(book_id, user_id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains);
   }
 }
 
