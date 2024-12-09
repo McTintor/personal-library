@@ -99,11 +99,10 @@ exports.addBook = async (req, res) => {
   const { title, author, pages, price, store, purchase_date, picture_url, description, genre } = req.body;
 
   console.log('raw req.body ', req.body);
-  // Retrieve contains data (if any)
+
   const containsTitles = req.body.contains.title || [];
   const containsAuthors = req.body.contains.author || [];
 
-  // Log each array individually for debugging
   console.log('Contains Titles: ', containsTitles);
   console.log('Contains Authors: ', containsAuthors);
 
@@ -124,16 +123,14 @@ exports.addBook = async (req, res) => {
       res.redirect('/mainpage');
     }
   } else {
-        // Pairing titles and authors
     const contains = containsTitles.map((title, index) => {
       const author = containsAuthors[index];
       return { title, author };
     });
 
-  console.log('Parsed contains data: ', contains);  // Log the final parsed contains data
+  console.log('Parsed contains data: ', contains);
 
   try {
-    // Pass the parsed data to your database insertion function
     await create(req.user.id, title, author, pages, price, store, purchase_date, picture_url, description, genre, contains);
     res.redirect('/mainpage');
   } catch (err) {
@@ -171,7 +168,6 @@ exports.editBook = async (req, res) => {
       res.redirect(`/details/${book_id}`);
     }
   } else {
-        // Pairing titles and authors
       const contains = containsTitles.map((title, index) => {
       const author = containsAuthors[index];
       return { title, author };

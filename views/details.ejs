@@ -17,17 +17,21 @@
             <h4>Purchase date: <%= new Date(book.purchase_date).toDateString() %></h4>
 
             <div class="contained-books">
-                <% if (book.contains && book.contains.length > 0) { %><h3 class="contains-h3">Titles contained in this book :</h3>
+                <% if (book.contains && book.contains.length > 0 && book.contains.every(cb => cb.title.trim() !== '')) { %>
+                    <h3 class="contains-h3">Titles contained in this book :</h3>
+                <% } %>
+                <% if (book.contains && book.contains.length > 0) { %>
                     <% for (let containedBook of book.contains) { %>
-                        <% if (containedBook.title !== '') { %>
-                        <div class="containedBook">
-                            <h4 class="containedBook-title">Title: <%= containedBook.title %></h3>
-                            <p class="containedBook-author">Author: <%= containedBook.author %></p>
-                        </div>
+                        <% if (containedBook.title.trim() !== '') { %>
+                            <div class="containedBook">
+                                <h4 class="containedBook-title">Title: <%= containedBook.title %></h4>
+                                <p class="containedBook-author">Author: <%= containedBook.author %></p>
+                            </div>
                         <% } %>
                     <% } %>
                 <% } %>
             </div>
+            
 
             <p class="detail-description"><%=book.description%></p>
         </div>
