@@ -34,16 +34,9 @@ The application includes user authentication and a responsive UI and dynamically
  ### Set up the database:
 
  - Create a PostgreSQL database.
- - Configure the connection settings in the .env file:
-     - DB_HOST
-     - DB_PORT
-     - DB_NAME
-     - DB_USER
-     - DB_PASSWORD
+ - Configure the connection settings in the .env file.
  - Run database migrations (if applicable): npm run migrate
-
  - Start the server: npm start
-
  - Open your browser and navigate to: http://localhost:3005
 
 ## Folder Structure
